@@ -22,6 +22,7 @@ from mlflow.protos.databricks_pb2 import (INTERNAL_ERROR,
                                           RESOURCE_DOES_NOT_EXIST)
 from mlflow.tracking.artifact_utils import _download_artifact_from_uri
 from mlflow.utils import experimental, extract_db_type_from_uri
+from mlflow.utils.model_utils import _get_flavor_configuration
 
 _logger = logging.getLogger(__name__)
 
@@ -65,7 +66,8 @@ def deploy(model_uri, db_uri, flavor, table_name=None, column_name=None):
             error_code=INVALID_PARAMETER_VALUE)
     model_config = Model.load(model_config_path)
     _validate_deployment_flavor(model_config, flavor)
-    onnx_model = onnx.load_model(model_uri)
+    flavor_conf = _get_flavor_configuration(model_path=model_path, flavor_name=flavor)
+    onnx_model = os.path.join(model_path, flavor_conf["data"])
 
     if table_name is None:
         table_name = "models"
@@ -102,13 +104,14 @@ def _validate_deployment_flavor(model_config, flavor):
 
 def insert_db(db_uri, table_name, column_name, onnx_model):
     engine = sqlalchemy.create_engine(db_uri)
+    artifact_content=open(onnx_model, "rb").read()
     # Create connection
     conn = engine.connect()
     meta = MetaData(engine, reflect=True)
     table = meta.tables[table_name]
     # insert data via insert() construct
-    ins = table.insert().value(
-        column_name=onnx_model)
+    ins = table.insert().values(
+        model=artifact_content)
     conn.execute(ins)
     # Close connection
     conn.close()
