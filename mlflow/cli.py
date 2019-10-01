@@ -18,7 +18,7 @@ import mlflow.sagemaker.cli
 import mlflow.runs
 import mlflow.store.db.utils
 import mlflow.db
-import mlflow.database
+import mlflow.database.cli
 
 from mlflow.tracking.utils import _is_local_uri
 from mlflow.utils.logging_utils import eprint
