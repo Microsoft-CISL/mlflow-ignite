@@ -18,6 +18,7 @@ import mlflow.sagemaker.cli
 import mlflow.runs
 import mlflow.store.db.utils
 import mlflow.db
+import mlflow.database
 
 from mlflow.tracking.utils import _is_local_uri
 from mlflow.utils.logging_utils import eprint
@@ -284,6 +285,7 @@ cli.add_command(mlflow.store.cli.commands)
 cli.add_command(mlflow.azureml.cli.commands)
 cli.add_command(mlflow.runs.commands)
 cli.add_command(mlflow.db.commands)
+cli.add_command(mlflow.database.cli.commands)
 
 if __name__ == '__main__':
     cli()
